@@ -106,4 +106,4 @@ dmypy.json
 .env.*
 
 # venv
-venv
+venv/
