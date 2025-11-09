@@ -104,3 +104,6 @@ dmypy.json
 # dotenv
 .env
 .env.*
+
+# venv
+venv/
