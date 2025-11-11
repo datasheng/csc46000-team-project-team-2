@@ -1,5 +1,52 @@
 # Monte Carlo Simulation of $250K in Stocks & ETFs
 
+## Setup
+
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Environment Variables (.env file)
+
+Create a `.env` file in the root directory (or copy from `.env.example`):
+
+```bash
+# API Keys
+FINNHUB_API_KEY=your_finnhub_api_key_here
+# Not needed - yfinance is free, no API key required
+
+# PostgreSQL Database
+PSQL_USERNAME=postgres
+PSQL_PASSWORD=your_postgres_password
+PSQL_HOST_ADDR=127.0.0.1
+PSQL_PORT=5432
+DB_NAME=monte_sim_stock_data
+CONNECTION_TIMEOUT=10
+```
+
+**Getting API Keys:**
+- **Finnhub**: Get free API key at https://finnhub.io/register (free tier: 60 calls/minute)
+- **Yahoo Finance**: No API key needed! The `yfinance` library is free and doesn't require authentication
+
+### 3. Quick Test
+```bash
+# Run all tests
+pytest
+
+# Run specific test file
+pytest tests/test_transform.py
+
+# Run specific test
+pytest tests/test_transform.py::TestTransformYFinance::test_transform_yfinance_single_ticker
+
+# Run with coverage
+pytest --cov=src tests/
+
+# Run only fast tests (skip slow/API/DB tests)
+pytest -m "not slow and not api and not db"
+```
+
 ## Data Model
 
 ```sql
@@ -63,6 +110,12 @@ ETL Pipeline: **Extract → Transform → Load**
 - `src/main.py` now orchestrates Extract → Transform → Load flow
 - Returns both extracted and transformed data
 
+✅ **Test Suite**: Comprehensive pytest-based test suite
+- Individual test functions for each component
+- Fixtures for common setup
+- Easy to add new tests
+- Can run specific tests or all tests
+
 ## Next Steps
 
 🚧 **Extract Module**: Implement actual API extraction functions
@@ -83,74 +136,30 @@ ETL Pipeline: **Extract → Transform → Load**
 
 ## Testing
 
-### 1. Test Transform Module
-```python
-# Test with sample Yahoo Finance data
-import pandas as pd
-from src.Transform.main import transform_yfinance_data
+### Running Tests
 
-# Create sample MultiIndex DataFrame (simulating yfinance output)
-dates = pd.date_range('2024-01-01', periods=5)
-tickers = ['AAPL', 'NVDA']
-data = {
-    ('AAPL', 'Open'): [150, 151, 152, 153, 154],
-    ('AAPL', 'High'): [151, 152, 153, 154, 155],
-    ('AAPL', 'Low'): [149, 150, 151, 152, 153],
-    ('AAPL', 'Close'): [150.5, 151.5, 152.5, 153.5, 154.5],
-    ('AAPL', 'Adj Close'): [150.5, 151.5, 152.5, 153.5, 154.5],
-    ('AAPL', 'Volume'): [1000000, 1100000, 1200000, 1300000, 1400000],
-    # ... similar for NVDA
-}
-df = pd.DataFrame(data, index=dates)
-df.columns = pd.MultiIndex.from_tuples(df.columns)
+```bash
+# Run all tests
+pytest
 
-result = transform_yfinance_data(df)
-print(result.head())
-# Should output: ticker, date, open, high, low, close, adj_close, volume
+# Run specific test file
+pytest tests/test_transform.py
+pytest tests/test_api.py
+pytest tests/test_etl.py
+pytest tests/test_database.py
+
+
 ```
 
-### 2. Test Database Connection
-```python
-# Run the connection script
-python src/db/connection.py
 
-# Should create/connect to database and show empty tables
-# Verify tables exist:
-# - stock_data (with adj_close column)
-# - simulation (with year column, not date)
-```
 
-### 3. Test ETL Pipeline
-```python
-# Test the full ETL flow
-from src.main import compile_ETL_data
-from config import api_keys
 
-# This will run Extract → Transform (Load not yet implemented)
-result = compile_ETL_data(api_keys["finnhub"], api_keys["yahoo_fin"], source='yfinance')
-print("Transformed data shape:", result['transformed'].shape)
-print("Transformed columns:", result['transformed'].columns.tolist())
-```
 
-### 4. Test Data Validation
-```python
-# Test cleaning functions
-from src.Transform.main import clean_stock_data
-import pandas as pd
+1. Create a new test file: `tests/test_your_module.py`
+2. Import pytest and your module
+3. Write test functions starting with `test_`
+4. Use fixtures from `conftest.py` or create new ones
+5. Run: `pytest tests/test_your_module.py`
 
-# Create test data with issues
-test_data = pd.DataFrame({
-    'ticker': ['AAPL', 'AAPL', 'NVDA'],
-    'date': ['2024-01-01', '2024-01-02', '2024-01-01'],
-    'open': [150, 151, -100],  # Negative price should be removed
-    'high': [152, 153, 200],
-    'low': [149, 150, 50],
-    'close': [151, 152, 100],
-    'adj_close': [151, 152, 100],
-    'volume': [1000000, 1100000, 2000000]
-})
 
-cleaned = clean_stock_data(test_data)
-# Should remove row with negative price
-print(f"Original: {len(test_data)} rows, Cleaned: {len(cleaned)} rows")
 ```
