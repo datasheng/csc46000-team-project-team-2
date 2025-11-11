@@ -103,7 +103,7 @@ dmypy.json
 
 # dotenv
 .env
-.env.*
+!.env.example
 
 # venv
 venv/
