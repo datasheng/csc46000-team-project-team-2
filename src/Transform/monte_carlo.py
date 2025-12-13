@@ -27,7 +27,6 @@ def run_monte_carlo(
             raise ValueError(f"DataFrame must contain '{col}' column")
 
     results = []
-    row_id = 0
     trading_days_per_year = 252
 
     for sim in range(num_simulations):
@@ -65,7 +64,6 @@ def run_monte_carlo(
                 probability = 1.0 if ending_val > starting_val else 0.0
 
                 results.append({
-                    "id": row_id,
                     "simulation_num": sim,
                     "ticker": ticker,
                     "year": year,
@@ -77,8 +75,6 @@ def run_monte_carlo(
                     "probability": probability
                 })
 
-                row_id += 1
-
     return pd.DataFrame(results)
 
 # Needed to create a different transform function due to different columns from live data
@@ -89,7 +85,7 @@ def transform_monte_carlo_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     if df.empty:
         return pd.DataFrame(columns=[
-            'id', 'simulation_num', 'ticker', 'year',
+            'simulation_num', 'ticker', 'year',
             'starting_value', 'ending_value', 'annual_return',
             'cumulative_return', 'volatility', 'probability'
         ])
@@ -97,7 +93,6 @@ def transform_monte_carlo_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     
     # Ensuring correct data types
-    df['id'] = df['id'].astype(int)
     df['ticker'] = df['ticker'].astype(str).str.upper()
     df['simulation_num'] = df['simulation_num'].astype(int)
     df['year'] = df['year'].astype(int)

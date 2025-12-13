@@ -19,6 +19,7 @@ finally:
 #loading the API_keys from the envorionment variables
 load_dotenv()
 
+ticker_list=['SPY', 'QQQ', 'AGG']
 api_keys = {
     "finnhub": os.getenv(key="FINNHUB_API_KEY", default="No Key Found"),
     "yahoo_fin": os.getenv(key="YAHOOFIN_API_KEY", default="No Key Found"),

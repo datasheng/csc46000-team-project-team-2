@@ -32,8 +32,8 @@ def insert_sim_data(db_host_addr: str, db_port: str, db_name: str, db_user: str,
     with psycopg.connect(f"hostaddr={db_host_addr} port={db_port} dbname={db_name} user={db_user} password={db_password} connect_timeout={db_timeout}") as conn:
         with conn.cursor() as cur:
             cur.executemany("""
-                INSERT INTO simulation (id, simulation_num, ticker, year, starting_value, ending_value, annual_return, cumulative_return, volatility, probability)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                INSERT INTO simulation (simulation_num, ticker, year, starting_value, ending_value, annual_return, cumulative_return, volatility, probability)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, data)
             conn.commit()
 
