@@ -5,7 +5,7 @@ from config import db_credentials, ticker_list
 
 def main() -> None:
     """Main entry point for the ETL pipeline."""
-    etl_data = compile_ETL_data(db_credentials=db_credentials, tickers=ticker_list, time_period='ytd')
+    etl_data = compile_ETL_data(db_credentials=db_credentials, tickers=ticker_list, time_period='max')
     if type(etl_data) is pd.DataFrame:
         print("ETL Data Compiled:", etl_data.head())
     print("ETL Data Compiled:", etl_data)
